@@ -1,0 +1,20 @@
+{
+  "name": "lemonade-spring",
+  "version": "0.1.0",
+  "description": "Lightweight spring animation helper",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raphaelameaume/lemonade-spring.git"
+  },
+  "keywords": [
+    "animation",
+    "spring"
+  ],
+  "author": "Raphaël Améaume",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/raphaelameaume/lemonade-spring/issues"
+  },
+  "homepage": "https://github.com/raphaelameaume/lemonade-spring#readme"
+}

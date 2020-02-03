@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Lemonade Spring</title>
+    <style>
+        .square {
+            position: absolute;
+            top: calc(50% - 45px);
+            left: calc(50% - 45px);
+            width: 90px;
+            height: 90px;
+            border-radius: 4px;
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="square"></div>
+    <script type="module">
+        import useSpring from "./index.js";
+
+        let square = document.querySelector('.square');
+        
+        let coords = { x: 0, y: 0 };
+
+        let spring = useSpring(coords, {
+            stiffness: 0.2,
+            dampening: 0.5,
+        });
+
+        document.addEventListener("mousemove", (event) => {
+            let x = event.clientX - window.innerWidth * 0.5; 
+            let y = event.clientY - window.innerHeight * 0.5;
+
+            spring.target({ x, y });
+        });
+
+        function loop() {
+            spring.update();
+
+            square.style.transform = `translate3d(${coords.x}px, ${coords.y}px, 0)`;
+
+            requestAnimationFrame(loop);
+        }
+
+        loop();
+
+    </script>
+</body>
+</html>
