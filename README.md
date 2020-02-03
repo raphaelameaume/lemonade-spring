@@ -1,6 +1,5 @@
 # lemonade-spring
-Lightweight spring animation helper
-
+`lemonade-spring` is a small utility function to animate numbers with a spring defined by stiffness and dampening. It's a simple spring implementation based on this [tweet by Taylor Baldwin](https://twitter.com/taylorbaldwin/status/1162407390492405762).
 
 ## Installation
 
@@ -16,7 +15,7 @@ import useSpring from "lemonade-spring";
 
 `lemonade-spring` supports numbers, arrays and simple objects.
 
-#### `spring = useSpring(startValue, options);`
+#### `spring = useSpring(startValue, [options]);`
 
 - `startValue` — Can either be a number, an array (mutated) or an object (mutated)
 - `[options] stiffness` — 
@@ -25,7 +24,7 @@ import useSpring from "lemonade-spring";
 #### `spring.update()`
 Must be call in a requestAnimationFrame callback
 #### `spring.target(destValue)`
-Set the destination value. Must be the same type / same length as startValue
+Set the destination value. Must be the same type/keys/length as startValue
 #### `spring.getValue()`
 Return the animated value
 
