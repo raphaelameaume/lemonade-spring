@@ -1,5 +1,5 @@
 # lemonade-spring
-`lemonade-spring` is a small utility function to animate numbers with a spring defined by stiffness and dampening. It's a simple spring implementation based on this [tweet by Taylor Baldwin](https://twitter.com/taylorbaldwin/status/1162407390492405762).
+`lemonade-spring` is a small utility function to animate numbers with a spring defined by stiffness and dampening. It's a simple spring implementation based on [this tweet by Taylor Baldwin](https://twitter.com/taylorbaldwin/status/1162407390492405762).
 
 ## Installation
 
@@ -10,14 +10,15 @@ npm install lemonade-spring
 ## Usage
 
 ```js
-import useSpring from "lemonade-spring";
+import createSpring from "lemonade-spring";
 ```
 
-`lemonade-spring` supports numbers, arrays and simple objects.
+`lemonade-spring` supports numbers, arrays and not-nested objects.
 
-#### `spring = useSpring(startValue, [options]);`
+#### `spring = createSpring(startValue, [options]);`
 
 - `startValue` — Can either be a number, an array (mutated) or an object (mutated)
+- `[options] mass` — 
 - `[options] stiffness` — 
 - `[options] dampening` — 
 
@@ -32,7 +33,7 @@ Return the animated value
 
 ### With a single number
 ```js
-let spring = useSpring(0); // start value
+let spring = createSpring(0); // start value
 
 document.addEventListener("click", () => {
     spring.target(Math.random() * 100);
@@ -50,7 +51,7 @@ function loop() {
 ### With an object (mutated)
 ```js
 let coords = { x: 0, y: 0 };
-let spring = useSpring(coords, {
+let spring = createSpring(coords, {
     stiffness: 0.2,
     dampening: 0.5,
 });
@@ -71,7 +72,7 @@ function loop() {
 ### With an array (mutated)
 ```js
 let coords = [0, 0];
-let spring = useSpring(coords, {
+let spring = createSpring(coords, {
     stiffness: 0.2,
     dampening: 0.5,
 });

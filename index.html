@@ -20,19 +20,27 @@
 <body>
     <div class="square"></div>
     <script type="module">
-        import useSpring from "./index.js";
+        import createSpring from "./index.js";
 
         let square = document.querySelector('.square');
         
         let coords = { x: 0, y: 0 };
 
-        let spring = useSpring(coords, {
-            stiffness: 0.2,
-            dampening: 0.5,
+        let spring = createSpring(coords, {
+            stiffness: 0.1,
+            dampening: 0.9,
+            precision: 0.5,
         });
 
         document.addEventListener("mousemove", (event) => {
             let x = event.clientX - window.innerWidth * 0.5; 
+            let y = event.clientY - window.innerHeight * 0.5;
+
+            // spring.target({ x, y });
+        });
+
+        document.addEventListener("click", (event) => {
+            let x = event.clientX - window.innerWidth * 0.5;
             let y = event.clientY - window.innerHeight * 0.5;
 
             spring.target({ x, y });

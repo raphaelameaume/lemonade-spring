@@ -1,15 +1,30 @@
 const defaults = {
     stiffness: 0.1,
-    dampening: 0.8
+    dampening: 0.8,
+    mass: 1,
+    precision: 0.01,
 };
 
-function SpringValue(value, { stiffness = defaults.stiffness, dampening = defaults.dampening } = defaults) {
-    let current = value;
+function noop() {}
+
+function isAtTarget(curr, dest, precision = defaults.precision) {
+    return curr < dest + precision && curr > dest - precision;
+}
+
+function createValueSpring(value, {
+    stiffness = defaults.stiffness,
+    dampening = defaults.dampening,
+    mass = defaults.mass,
+    precision = defaults.precision,
+} = defaults) {
     let previous = value;
+    let current = value;
     let destination = null;
+    let completed = false;
 
     function target(dest) {
         destination = dest;
+        completed = false;
     }
 
     function update() {
@@ -18,6 +33,11 @@ function SpringValue(value, { stiffness = defaults.stiffness, dampening = defaul
             let acceleration = (destination - current) * stiffness - velocity * dampening;
             previous = current;
             current += velocity + acceleration;
+
+            if (isAtTarget(current, destination, precision) && !completed) {
+                completed = true;
+                onComplete();
+            }
         }
     }
 
@@ -32,29 +52,37 @@ function SpringValue(value, { stiffness = defaults.stiffness, dampening = defaul
     };
 }
 
-function SpringObject(start, { stiffness = defaults.stiffness, dampening = defaults.dampening } = defaults) {
+function createObjectSpring(start, {
+    stiffness = defaults.stiffness,
+    dampening = defaults.dampening,
+    mass = defaults.mass,
+    precision = defaults.precision,
+    onComplete = noop,
+} = defaults) {
+
     let keys = Object.keys(start);
-    let current = keys.reduce((obj, key) => {
-        obj[key] = start[key];
-
-        return obj;
-    }, {});
-
     let previous = keys.reduce((obj, key) => {
         obj[key] = start[key];
 
         return obj;
     }, {});
+    let current = keys.reduce((obj, key) => {
+        obj[key] = start[key];
 
+        return obj;
+    }, {});
     let destination = null;
+    let completed = [];
 
     function target(dest) {
         destination = dest;
+        completed = [];
     }
 
     function update() {
         if (destination !== null) {
-            keys.forEach(key => {
+            for (let i = 0; i < keys.length; i++) {
+                let key = keys[i];
                 let velocity = current[key] - previous[key];
                 let acceleration =
                     (destination[key] - current[key]) * stiffness - velocity * dampening;
@@ -62,7 +90,15 @@ function SpringObject(start, { stiffness = defaults.stiffness, dampening = defau
                 previous[key] = current[key];
                 current[key] += velocity + acceleration;
                 start[key] = current[key];
-            });
+
+                if (isAtTarget(current[key], destination[key], precision) && !completed.includes(key)) {
+                    completed.push(key);
+
+                    if (completed.length === keys.length) {
+                        onComplete();
+                    }
+                }
+            }
         }
     }
 
@@ -77,10 +113,18 @@ function SpringObject(start, { stiffness = defaults.stiffness, dampening = defau
     };
 }
 
-function SpringArray(start, { stiffness = defaults.stiffness, dampening = defaults.dampening } = defaults) {
+function createArraySpring(start, {
+    stiffness = defaults.stiffness,
+    dampening = defaults.dampening,
+    mass = defaults.mass,
+    precision = defaults.precision,
+    onComplete = noop,
+} = defaults) {
+
     let current = start.map(element => element);
     let previous = start.map(element => element);
     let destination = null;
+    let completed = [];
 
     function target(dest) {
         if (!Array.isArray(dest)) {
@@ -94,6 +138,7 @@ function SpringArray(start, { stiffness = defaults.stiffness, dampening = defaul
         }
 
         destination = dest;
+        completed = [];
     }
 
     function update() {
@@ -109,6 +154,14 @@ function SpringArray(start, { stiffness = defaults.stiffness, dampening = defaul
                 current[index] += velocity + acceleration;
 
                 start[index] = current[index];
+
+                if (isAtTarget(current[index], destination[index], precision) && !completed.includes(index)) {
+                    completed.push(index);
+
+                    if (completed.length === start.length) {
+                        onComplete();
+                    }
+                }
             });
         }
     }
@@ -124,16 +177,16 @@ function SpringArray(start, { stiffness = defaults.stiffness, dampening = defaul
     };
 }
 
-function useSpring(start, options) {
+function createSpring(start, options) {
     if (Array.isArray(start)) {
-        return SpringArray(start, options);
+        return createArraySpring(start, options);
     }
 
     if (typeof start === "object") {
-        return SpringObject(start, options);
+        return createObjectSpring(start, options);
     }
 
-    return SpringValue(start, options);
+    return createValueSpring(start, options);
 }
 
-export default useSpring;
+export default createSpring;
