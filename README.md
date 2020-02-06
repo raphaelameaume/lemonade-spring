@@ -1,5 +1,6 @@
 # lemonade-spring
-`lemonade-spring` is a small utility function to animate numbers with a spring defined by stiffness and damping. It's a simple spring implementation based on [this tweet by Taylor Baldwin](https://twitter.com/taylorbaldwin/status/1162407390492405762).
+`lemonade-spring` is a minimal function to create spring-physics based animations. The implementation is based on [this tweet by Taylor Baldwin](https://twitter.com/taylorbaldwin/status/1162407390492405762).
+It is written in ES6 and can be used directly in browsers supporting `<script type="module">`
 
 ## Installation
 
@@ -13,21 +14,19 @@ npm install lemonade-spring
 import createSpring from "lemonade-spring";
 ```
 
-`lemonade-spring` supports numbers, arrays and not-nested objects.
-
 #### `spring = createSpring(startValue, [options]);`
 
-- `startValue` — Can either be a number, an array (mutated) or an object (mutated)
-- `[options] mass` — (Number)
-- `[options] stiffness` — (Number) 
-- `[options] damping` — (Number)
-- `[options] precision` - (Number) Define the interval size in which the animation will considered having reached destValue
-- `[options] onComplete` — (Function) Will be called whenever the destValue is in range [destValue-precision, destValue+precision]
+- `startValue` — Can either be a number, an array (mutated) or an simple object with no nesting (mutated)
+- `[options] mass` — A number
+- `[options] stiffness` — A number
+- `[options] damping` — A number
+- `[options] precision` - A number that defines the interval size in which the animation will considered completed.
+- `[options] onComplete` — A function that will be called once the destValue is in range [destValue-precision, destValue+precision]
 
 #### `spring.update()`
 Must be call in a requestAnimationFrame callback
 #### `spring.target(destValue)`
-Set the destination value. Must be the same type/keys/length as startValue
+Set the destination value. Must be the same type|keys|length as startValue
 #### `spring.getValue()`
 Return the animated value
 

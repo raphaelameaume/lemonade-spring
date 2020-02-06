@@ -1,7 +1,7 @@
 {
   "name": "lemonade-spring",
   "version": "0.1.0",
-  "description": "Lightweight spring animation helper",
+  "description": "Simple spring animations",
   "main": "index.js",
   "repository": {
     "type": "git",
