@@ -1,22 +1,23 @@
-const defaults = {
+const config = {
     stiffness: 0.1,
-    dampening: 0.8,
+    damping: 0.8,
     mass: 1,
     precision: 0.01,
 };
 
 function noop() {}
 
-function isAtTarget(curr, dest, precision = defaults.precision) {
+function isAtTarget(curr, dest, precision = config.precision) {
     return curr < dest + precision && curr > dest - precision;
 }
 
 function createValueSpring(value, {
-    stiffness = defaults.stiffness,
-    dampening = defaults.dampening,
-    mass = defaults.mass,
-    precision = defaults.precision,
-} = defaults) {
+    stiffness = config.stiffness,
+    damping = config.damping,
+    mass = config.mass,
+    precision = config.precision,
+    onComplete = noop,
+} = config) {
     let previous = value;
     let current = value;
     let destination = null;
@@ -29,8 +30,9 @@ function createValueSpring(value, {
 
     function update() {
         if (destination !== null) {
-            let velocity = current - previous;
-            let acceleration = (destination - current) * stiffness - velocity * dampening;
+            let velocity = (current - previous);
+            let acceleration = (destination - current) * stiffness - velocity * damping;
+            acceleration /= mass;
             previous = current;
             current += velocity + acceleration;
 
@@ -46,6 +48,9 @@ function createValueSpring(value, {
     }
 
     return {
+        stiffness: (value) => { if (value) stiffness = value; return stiffness },
+        damping: (value) => { if (value) damping = value; return damping },
+        precision: (value) => { if (value) precision = value; return precision },
         target,
         update,
         getValue
@@ -53,12 +58,12 @@ function createValueSpring(value, {
 }
 
 function createObjectSpring(start, {
-    stiffness = defaults.stiffness,
-    dampening = defaults.dampening,
-    mass = defaults.mass,
-    precision = defaults.precision,
+    stiffness = config.stiffness,
+    damping = config.damping,
+    mass = config.mass,
+    precision = config.precision,
     onComplete = noop,
-} = defaults) {
+} = config) {
 
     let keys = Object.keys(start);
     let previous = keys.reduce((obj, key) => {
@@ -83,9 +88,9 @@ function createObjectSpring(start, {
         if (destination !== null) {
             for (let i = 0; i < keys.length; i++) {
                 let key = keys[i];
-                let velocity = current[key] - previous[key];
-                let acceleration =
-                    (destination[key] - current[key]) * stiffness - velocity * dampening;
+                let velocity = (current[key] - previous[key]);
+                let acceleration = (destination[key] - current[key]) * stiffness - velocity * damping;
+                acceleration /= mass;
 
                 previous[key] = current[key];
                 current[key] += velocity + acceleration;
@@ -107,6 +112,10 @@ function createObjectSpring(start, {
     }
 
     return {
+        mass: (value) => { if (value) mass = value; return mass },
+        stiffness: (value) => { if (value) stiffness = value; return stiffness },
+        damping: (value) => { if (value) damping = value; return damping },
+        precision: (value) => { if (value) precision = value; return precision },
         update,
         getValue,
         target
@@ -114,12 +123,12 @@ function createObjectSpring(start, {
 }
 
 function createArraySpring(start, {
-    stiffness = defaults.stiffness,
-    dampening = defaults.dampening,
-    mass = defaults.mass,
-    precision = defaults.precision,
+    stiffness = config.stiffness,
+    damping = config.damping,
+    mass = config.mass,
+    precision = config.precision,
     onComplete = noop,
-} = defaults) {
+} = config) {
 
     let current = start.map(element => element);
     let previous = start.map(element => element);
@@ -128,7 +137,7 @@ function createArraySpring(start, {
 
     function target(dest) {
         if (!Array.isArray(dest)) {
-            console.error("Spring: target must match the type of first argument");
+            console.error("Spring: target must match the type of startValue");
             return;
         }
 
@@ -145,14 +154,11 @@ function createArraySpring(start, {
         if (destination !== null) {
             current.forEach((element, index) => {
                 let velocity = current[index] - previous[index];
-                let acceleration =
-                    (destination[index] - current[index]) * stiffness -
-                    velocity * dampening;
+                let acceleration = (destination[index] - current[index]) * stiffness - velocity * damping;
+                acceleration /= mass;
 
                 previous[index] = current[index];
-
                 current[index] += velocity + acceleration;
-
                 start[index] = current[index];
 
                 if (isAtTarget(current[index], destination[index], precision) && !completed.includes(index)) {
@@ -171,6 +177,9 @@ function createArraySpring(start, {
     }
 
     return {
+        stiffness: (value) => { if (value) stiffness = value; return stiffness },
+        damping: (value) => { if (value) damping = value; return damping },
+        precision: (value) => { if (value) precision = value; return precision },
         update,
         getValue,
         target

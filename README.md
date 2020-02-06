@@ -1,5 +1,5 @@
 # lemonade-spring
-`lemonade-spring` is a small utility function to animate numbers with a spring defined by stiffness and dampening. It's a simple spring implementation based on [this tweet by Taylor Baldwin](https://twitter.com/taylorbaldwin/status/1162407390492405762).
+`lemonade-spring` is a small utility function to animate numbers with a spring defined by stiffness and damping. It's a simple spring implementation based on [this tweet by Taylor Baldwin](https://twitter.com/taylorbaldwin/status/1162407390492405762).
 
 ## Installation
 
@@ -18,9 +18,11 @@ import createSpring from "lemonade-spring";
 #### `spring = createSpring(startValue, [options]);`
 
 - `startValue` — Can either be a number, an array (mutated) or an object (mutated)
-- `[options] mass` — 
-- `[options] stiffness` — 
-- `[options] dampening` — 
+- `[options] mass` — (Number)
+- `[options] stiffness` — (Number) 
+- `[options] damping` — (Number)
+- `[options] precision` - (Number) Define the interval size in which the animation will considered having reached destValue
+- `[options] onComplete` — (Function) Will be called whenever the destValue is in range [destValue-precision, destValue+precision]
 
 #### `spring.update()`
 Must be call in a requestAnimationFrame callback
@@ -52,8 +54,9 @@ function loop() {
 ```js
 let coords = { x: 0, y: 0 };
 let spring = createSpring(coords, {
+    mass: 1,
     stiffness: 0.2,
-    dampening: 0.5,
+    damping: 0.5,
 });
 
 document.addEventListener("mousemove", function(event) {
@@ -73,8 +76,9 @@ function loop() {
 ```js
 let coords = [0, 0];
 let spring = createSpring(coords, {
+    mass: 1,
     stiffness: 0.2,
-    dampening: 0.5,
+    damping: 0.5,
 });
 
 document.addEventListener("mousemove", function(event) {

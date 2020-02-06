@@ -6,50 +6,90 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Lemonade Spring</title>
     <style>
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
         .square {
             position: absolute;
-            top: calc(50% - 45px);
-            left: calc(50% - 45px);
-            width: 90px;
-            height: 90px;
+            top: calc(50% - 20px);
+            left: calc(50% - 20px);
+            width: 40px;
+            height: 40px;
             border-radius: 4px;
             background-color: red;
         }
+        
     </style>
 </head>
 <body>
     <div class="square"></div>
+    <script src="./dat.gui.js"></script>
     <script type="module">
         import createSpring from "./index.js";
 
         let square = document.querySelector('.square');
         
-        let coords = { x: 0, y: 0 };
-
-        let spring = createSpring(coords, {
-            stiffness: 0.1,
-            dampening: 0.9,
+        let coords = [0, 0];
+        let params = {
+            mass: 1,
+            stiffness: 0.3,
+            damping: 0.4,
             precision: 0.5,
+            followMouse: true,
+        };
+        let spring = createSpring(coords, {
+            mass: params.mass,
+            stiffness: params.stiffness,
+            damping: params.damping,
+            precision: params.precision,
+            onComplete: () => {
+                if (!params.followMouse) {
+                    console.log('Spring completed!');
+                }
+            }
         });
+
+        let gui = new dat.GUI();
+        gui.add(params, 'mass', 0, 10).step(0.01).onChange(() => {
+            spring.mass(params.mass);
+        });
+        gui.add(params, 'stiffness', 0, 2).step(0.01).onChange(() => {
+            spring.stiffness(params.stiffness);
+        });
+        gui.add(params, 'damping', 0, 2).step(0.01).onChange(() => {
+            spring.damping(params.damping);
+        });
+        gui.add(params, 'precision', 0, 1).step(0.001).onChange(() => {
+            spring.precision(params.precision);
+        });
+        gui.add(params, 'followMouse');
 
         document.addEventListener("mousemove", (event) => {
             let x = event.clientX - window.innerWidth * 0.5; 
             let y = event.clientY - window.innerHeight * 0.5;
 
-            // spring.target({ x, y });
+            if (params.followMouse) {
+                //spring.target({ x, y });
+                spring.target([ x, y ]);
+            }
         });
 
         document.addEventListener("click", (event) => {
             let x = event.clientX - window.innerWidth * 0.5;
             let y = event.clientY - window.innerHeight * 0.5;
 
-            spring.target({ x, y });
+            if (!params.followMouse) {
+                //spring.target({ x, y });
+                spring.target([ x, y ]);
+            }
         });
 
         function loop() {
             spring.update();
 
-            square.style.transform = `translate3d(${coords.x}px, ${coords.y}px, 0)`;
+            square.style.transform = `translate3d(${coords[0]}px, ${coords[1]}px, 0)`;
 
             requestAnimationFrame(loop);
         }
