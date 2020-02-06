@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Lemonade Spring</title>
+    <title>lemonade-spring – Example</title>
     <style>
         body {
             width: 100%;
@@ -25,13 +25,13 @@
 </head>
 <body>
     <div class="square"></div>
-    <script src="./dat.gui.js"></script>
+    <script src="https://unpkg.com/dat.gui@0.7.6/build/dat.gui.js"></script>
     <script type="module">
         import createSpring from "./index.js";
 
         let square = document.querySelector('.square');
         
-        let coords = [0, 0];
+        let coords = { x: 0, y: 0 };
         let params = {
             mass: 1,
             stiffness: 0.3,
@@ -71,8 +71,7 @@
             let y = event.clientY - window.innerHeight * 0.5;
 
             if (params.followMouse) {
-                //spring.target({ x, y });
-                spring.target([ x, y ]);
+                spring.target({ x, y });
             }
         });
 
@@ -81,15 +80,14 @@
             let y = event.clientY - window.innerHeight * 0.5;
 
             if (!params.followMouse) {
-                //spring.target({ x, y });
-                spring.target([ x, y ]);
+                spring.target({ x, y });
             }
         });
 
         function loop() {
             spring.update();
 
-            square.style.transform = `translate3d(${coords[0]}px, ${coords[1]}px, 0)`;
+            square.style.transform = `translate3d(${coords.x}px, ${coords.y}px, 0)`;
 
             requestAnimationFrame(loop);
         }
