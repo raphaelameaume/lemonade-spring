@@ -48,6 +48,7 @@ function createValueSpring(value, {
     }
 
     return {
+        mass: (value) => { if (value) mass = value; return mass },
         stiffness: (value) => { if (value) stiffness = value; return stiffness },
         damping: (value) => { if (value) damping = value; return damping },
         precision: (value) => { if (value) precision = value; return precision },
