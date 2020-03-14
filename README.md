@@ -17,16 +17,18 @@ import createSpring from "lemonade-spring";
 #### `spring = createSpring(startValue, [options]);`
 
 - `startValue` — Can either be a number, an array (mutated) or an simple object with no nesting (mutated)
-- `options.mass` — A number
-- `options.stiffness` — A number
-- `options.damping` — A number
-- `options.precision` - A number that defines the interval size in which the animation will considered completed.
-- `options.onComplete` — A function that will be called once the destValue is in range [destValue-precision, destValue+precision]
+- `options.mass` — A number defining the mass of the spring. Default to `1`
+- `options.stiffness` — A number defining the stiffness of the spring. Default to `0.1`
+- `options.damping` — A number defining the damping of the spring. Default to `0.8`
+- `options.precision` - A number defining the interval size in which the animation will considered completed. Default to `0.01`.
+- `options.onComplete` — A function that will be called once the destValue is in range `[destValue-precision, destValue+precision]`
 
-#### `spring.update()`
-Must be call in a requestAnimationFrame callback
 #### `spring.target(destValue)`
 Set the destination value. Must be the same type|keys|length as startValue
+#### `spring.update()`
+Must be call in a requestAnimationFrame callback
+#### `spring.setValue()`
+Set the start value
 #### `spring.getValue()`
 Return the animated value
 
