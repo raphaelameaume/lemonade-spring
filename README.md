@@ -95,3 +95,6 @@ function loop() {
 }
 ```
 
+## License
+
+MIT License, see [LICENSE](https://github.com/raphaelameaume/lemonade-spring/tree/master/LICENSE) for details
