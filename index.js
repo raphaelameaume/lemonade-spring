@@ -11,15 +11,14 @@ function isAtTarget(curr, dest, precision = config.precision) {
     return curr < dest + precision && curr > dest - precision;
 }
 
-function createValueSpring(value, {
+function createValueSpring(start, {
     stiffness = config.stiffness,
     damping = config.damping,
     mass = config.mass,
     precision = config.precision,
     onComplete = noop,
 } = config) {
-    let previous = value;
-    let current = value;
+    let previous, current;
     let destination = null;
     let completed = false;
 
@@ -31,12 +30,13 @@ function createValueSpring(value, {
     function update() {
         if (destination !== null) {
             let velocity = (current - previous);
-            let acceleration = (destination - current) * stiffness - velocity * damping;
-            acceleration /= mass;
+            let acceleration = (destination - current) * spring.stiffness - velocity * spring.damping;
+            acceleration /= spring.mass;
+
             previous = current;
             current += velocity + acceleration;
 
-            if (isAtTarget(current, destination, precision) && !completed) {
+            if (isAtTarget(current, destination, spring.precision) && !completed) {
                 completed = true;
                 onComplete();
             }
@@ -47,15 +47,27 @@ function createValueSpring(value, {
         return current;
     }
 
-    return {
-        mass: (value) => { if (value) mass = value; return mass },
-        stiffness: (value) => { if (value) stiffness = value; return stiffness },
-        damping: (value) => { if (value) damping = value; return damping },
-        precision: (value) => { if (value) precision = value; return precision },
-        target,
+    function setValue(value) {
+        previous = value;
+        current = value;
+
+        completed = false;
+    }
+
+    const spring = {
+        stiffness,
+        damping,
+        precision,
+        mass,
         update,
-        getValue
+        getValue,
+        setValue,
+        target
     };
+
+    spring.setValue(start);
+
+    return spring;
 }
 
 function createObjectSpring(start, {
@@ -65,18 +77,7 @@ function createObjectSpring(start, {
     precision = config.precision,
     onComplete = noop,
 } = config) {
-
-    let keys = Object.keys(start);
-    let previous = keys.reduce((obj, key) => {
-        obj[key] = start[key];
-
-        return obj;
-    }, {});
-    let current = keys.reduce((obj, key) => {
-        obj[key] = start[key];
-
-        return obj;
-    }, {});
+    let keys, previous, current;
     let destination = null;
     let completed = [];
 
@@ -90,14 +91,14 @@ function createObjectSpring(start, {
             for (let i = 0; i < keys.length; i++) {
                 let key = keys[i];
                 let velocity = (current[key] - previous[key]);
-                let acceleration = (destination[key] - current[key]) * stiffness - velocity * damping;
-                acceleration /= mass;
+                let acceleration = (destination[key] - current[key]) * spring.stiffness - velocity * spring.damping;
+                acceleration /= spring.mass;
 
                 previous[key] = current[key];
                 current[key] += velocity + acceleration;
                 start[key] = current[key];
 
-                if (isAtTarget(current[key], destination[key], precision) && !completed.includes(key)) {
+                if (isAtTarget(current[key], destination[key], spring.precision) && !completed.includes(key)) {
                     completed.push(key);
 
                     if (completed.length === keys.length) {
@@ -108,19 +109,42 @@ function createObjectSpring(start, {
         }
     }
 
+    function setValue(value) {
+        keys = Object.keys(value);
+
+        previous = keys.reduce((obj, key) => {
+            obj[key] = value[key];
+
+            return obj;
+        }, {});
+
+        current = keys.reduce((obj, key) => {
+            obj[key] = value[key];
+
+            return obj;
+        }, {});
+
+        completed = [];
+    }
+
     function getValue() {
         return current;
     }
 
-    return {
-        mass: (value) => { if (value) mass = value; return mass },
-        stiffness: (value) => { if (value) stiffness = value; return stiffness },
-        damping: (value) => { if (value) damping = value; return damping },
-        precision: (value) => { if (value) precision = value; return precision },
+    const spring = {
+        stiffness,
+        damping,
+        precision,
+        mass,
         update,
         getValue,
+        setValue,
         target
     };
+
+    spring.setValue(start);
+
+    return spring;
 }
 
 function createArraySpring(start, {
@@ -130,9 +154,8 @@ function createArraySpring(start, {
     precision = config.precision,
     onComplete = noop,
 } = config) {
-
-    let current = start.map(element => element);
-    let previous = start.map(element => element);
+    let previous = [];
+    let current = [];
     let destination = null;
     let completed = [];
 
@@ -155,14 +178,14 @@ function createArraySpring(start, {
         if (destination !== null) {
             current.forEach((element, index) => {
                 let velocity = current[index] - previous[index];
-                let acceleration = (destination[index] - current[index]) * stiffness - velocity * damping;
-                acceleration /= mass;
+                let acceleration = (destination[index] - current[index]) * spring.stiffness - velocity * spring.damping;
+                acceleration /= spring.mass;
 
                 previous[index] = current[index];
                 current[index] += velocity + acceleration;
                 start[index] = current[index];
 
-                if (isAtTarget(current[index], destination[index], precision) && !completed.includes(index)) {
+                if (isAtTarget(current[index], destination[index], spring.precision) && !completed.includes(index)) {
                     completed.push(index);
 
                     if (completed.length === start.length) {
@@ -177,14 +200,26 @@ function createArraySpring(start, {
         return current;
     }
 
-    return {
-        stiffness: (value) => { if (value) stiffness = value; return stiffness },
-        damping: (value) => { if (value) damping = value; return damping },
-        precision: (value) => { if (value) precision = value; return precision },
+    function setValue(value) {
+        current = value.map(element => element);
+        previous = value.map(element => element);
+        completed = [];
+    }
+
+    const spring = {
+        stiffness,
+        damping,
+        precision,
+        mass,
         update,
         getValue,
+        setValue,
         target
     };
+
+    spring.setValue(start);
+
+    return spring;
 }
 
 function createSpring(start, options) {

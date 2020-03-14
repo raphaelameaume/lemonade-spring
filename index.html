@@ -30,8 +30,9 @@
         import createSpring from "./index.js";
 
         let square = document.querySelector('.square');
-        
+
         let coords = { x: 0, y: 0 };
+        // let coords = [0, 0];
         let params = {
             mass: 1,
             stiffness: 0.3,
@@ -52,18 +53,10 @@
         });
 
         let gui = new dat.GUI();
-        gui.add(params, 'mass', 0, 10).step(0.01).onChange(() => {
-            spring.mass(params.mass);
-        });
-        gui.add(params, 'stiffness', 0, 2).step(0.01).onChange(() => {
-            spring.stiffness(params.stiffness);
-        });
-        gui.add(params, 'damping', 0, 2).step(0.01).onChange(() => {
-            spring.damping(params.damping);
-        });
-        gui.add(params, 'precision', 0, 1).step(0.001).onChange(() => {
-            spring.precision(params.precision);
-        });
+        gui.add(spring, 'mass', 0, 10).step(0.01);
+        gui.add(spring, 'stiffness', 0, 2).step(0.01);
+        gui.add(spring, 'damping', 0, 2).step(0.01);
+        gui.add(spring, 'precision', 0, 1).step(0.001);
         gui.add(params, 'followMouse');
 
         document.addEventListener("mousemove", (event) => {
@@ -72,6 +65,7 @@
 
             if (params.followMouse) {
                 spring.target({ x, y });
+                // spring.target([x, y]);
             }
         });
 
@@ -81,13 +75,16 @@
 
             if (!params.followMouse) {
                 spring.target({ x, y });
+                // spring.setValue([x, y]);
             }
+
         });
 
         function loop() {
             spring.update();
 
             square.style.transform = `translate3d(${coords.x}px, ${coords.y}px, 0)`;
+            // square.style.transform = `translate3d(${coords[0]}px, ${coords[1]}px, 0)`;
 
             requestAnimationFrame(loop);
         }
