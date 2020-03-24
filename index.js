@@ -5,7 +5,7 @@ const config = {
     precision: 0.01,
 };
 
-function noop() {}
+function noop() { }
 
 function isAtTarget(curr, dest, precision = config.precision) {
     return curr < dest + precision && curr > dest - precision;
@@ -37,11 +37,13 @@ function createValueSpring(start, {
             previous = current;
             current += velocity + acceleration;
 
-            onUpdate(getValue());
-
             if (isAtTarget(current, destination, spring.precision) && !completed) {
                 completed = true;
-                onComplete();
+                current = destination;
+                onUpdate(getValue());
+                onComplete(getValue());
+            } else if (!completed) {
+                onUpdate(getValue());
             }
         }
     }
@@ -82,35 +84,56 @@ function createObjectSpring(start, {
     onComplete = noop,
 } = config) {
     let keys, previous, current;
-    let destination = null;
-    let completed = [];
+    let destination = {};
+    let completedKeys = [];
+    let completed = false;
 
     function target(dest) {
-        destination = dest;
-        completed = [];
+        completed = false;
+
+        Object.keys(dest).forEach(key => {
+            let completedKeyIndex = completedKeys.indexOf(key);
+            if (completedKeyIndex >= 0) {
+                completedKeys.splice(completedKeyIndex, 1);
+            }
+
+            destination[key] = dest[key];
+        });
     }
 
     function update() {
-        if (destination !== null) {
+        if (Object.keys(destination).length > 0) {
             for (let i = 0; i < keys.length; i++) {
                 let key = keys[i];
-                let velocity = (current[key] - previous[key]);
-                let acceleration = (destination[key] - current[key]) * spring.stiffness - velocity * spring.damping;
-                acceleration /= spring.mass;
 
-                previous[key] = current[key];
-                current[key] += velocity + acceleration;
-                start[key] = current[key];
+                if (destination[key] !== undefined && !completedKeys.includes(key)) {
+                    let velocity = (current[key] - previous[key]);
+                    let acceleration = (destination[key] - current[key]) * spring.stiffness - velocity * spring.damping;
+                    acceleration /= spring.mass;
 
-                onUpdate(getValue());
+                    previous[key] = current[key];
+                    current[key] += velocity + acceleration;
+                    start[key] = current[key];
 
-                if (isAtTarget(current[key], destination[key], spring.precision) && !completed.includes(key)) {
-                    completed.push(key);
-
-                    if (completed.length === keys.length) {
-                        onComplete();
+                    if (isAtTarget(current[key], destination[key], spring.precision) && !completedKeys.includes(key)) {
+                        completedKeys.push(key);
                     }
                 }
+            }
+
+            let isComplete = Object.keys(destination).every(key => completedKeys.includes(key));
+
+            if (isComplete && !completed) {
+                completed = true;
+
+                Object.keys(destination).forEach(key => {
+                    current[key] = destination[key];
+                })
+
+                onUpdate(getValue());
+                onComplete(getValue());
+            } else if (!completed) {
+                onUpdate(getValue());
             }
         }
     }
@@ -192,14 +215,16 @@ function createArraySpring(start, {
                 current[index] += velocity + acceleration;
                 start[index] = current[index];
 
-                onUpdate(getValue());
 
                 if (isAtTarget(current[index], destination[index], spring.precision) && !completed.includes(index)) {
                     completed.push(index);
 
                     if (completed.length === start.length) {
+                        onUpdate(destination);
                         onComplete();
                     }
+                } else if (!completed.length === start.length) {
+                    onUpdate(getValue());
                 }
             });
         }
