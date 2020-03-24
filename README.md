@@ -21,6 +21,7 @@ import createSpring from "lemonade-spring";
 - `options.stiffness` — A number defining the stiffness of the spring. Default to `0.1`
 - `options.damping` — A number defining the damping of the spring. Default to `0.8`
 - `options.precision` - A number defining the interval size in which the animation will considered completed. Default to `0.01`.
+- `options.onUpdate` — A function that will be called after the `update()` call. Return the current value.
 - `options.onComplete` — A function that will be called once the destValue is in range `[destValue-precision, destValue+precision]`
 
 #### `spring.target(destValue)`

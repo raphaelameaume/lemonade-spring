@@ -16,6 +16,7 @@ function createValueSpring(start, {
     damping = config.damping,
     mass = config.mass,
     precision = config.precision,
+    onUpdate = noop,
     onComplete = noop,
 } = config) {
     let previous, current;
@@ -35,6 +36,8 @@ function createValueSpring(start, {
 
             previous = current;
             current += velocity + acceleration;
+
+            onUpdate(getValue());
 
             if (isAtTarget(current, destination, spring.precision) && !completed) {
                 completed = true;
@@ -75,6 +78,7 @@ function createObjectSpring(start, {
     damping = config.damping,
     mass = config.mass,
     precision = config.precision,
+    onUpdate = noop,
     onComplete = noop,
 } = config) {
     let keys, previous, current;
@@ -97,6 +101,8 @@ function createObjectSpring(start, {
                 previous[key] = current[key];
                 current[key] += velocity + acceleration;
                 start[key] = current[key];
+
+                onUpdate(getValue());
 
                 if (isAtTarget(current[key], destination[key], spring.precision) && !completed.includes(key)) {
                     completed.push(key);
@@ -152,6 +158,7 @@ function createArraySpring(start, {
     damping = config.damping,
     mass = config.mass,
     precision = config.precision,
+    onUpdate = noop,
     onComplete = noop,
 } = config) {
     let previous = [];
@@ -184,6 +191,8 @@ function createArraySpring(start, {
                 previous[index] = current[index];
                 current[index] += velocity + acceleration;
                 start[index] = current[index];
+
+                onUpdate(getValue());
 
                 if (isAtTarget(current[index], destination[index], spring.precision) && !completed.includes(index)) {
                     completed.push(index);
