@@ -21,11 +21,12 @@ function createValueSpring(start, {
 } = config) {
     let previous, current;
     let destination = null;
-    let completed = false;
 
     function target(dest) {
-        destination = dest;
-        completed = false;
+        if (dest !== current) {
+            destination = dest;
+            spring.completed = false;
+        }
     }
 
     function update() {
@@ -37,12 +38,12 @@ function createValueSpring(start, {
             previous = current;
             current += velocity + acceleration;
 
-            if (isAtTarget(current, destination, spring.precision) && !completed) {
-                completed = true;
+            if (isAtTarget(current, destination, spring.precision) && !spring.completed) {
+                spring.completed = true;
                 current = destination;
                 onUpdate(getValue());
                 onComplete(getValue());
-            } else if (!completed) {
+            } else if (!spring.completed) {
                 onUpdate(getValue());
             }
         }
@@ -56,10 +57,11 @@ function createValueSpring(start, {
         previous = value;
         current = value;
 
-        completed = false;
+        spring.completed = false;
     }
 
     const spring = {
+        completed: false,
         stiffness,
         damping,
         precision,
@@ -86,11 +88,8 @@ function createObjectSpring(start, {
     let keys, previous, current;
     let destination = {};
     let completedKeys = [];
-    let completed = false;
 
     function target(dest) {
-        completed = false;
-
         Object.keys(dest).forEach(key => {
             let completedKeyIndex = completedKeys.indexOf(key);
             if (completedKeyIndex >= 0) {
@@ -99,6 +98,8 @@ function createObjectSpring(start, {
 
             destination[key] = dest[key];
         });
+
+        spring.completed = false;
     }
 
     function update() {
@@ -124,7 +125,7 @@ function createObjectSpring(start, {
             let isComplete = Object.keys(destination).every(key => completedKeys.includes(key));
 
             if (isComplete && !completed) {
-                completed = true;
+                spring.completed = true;
 
                 Object.keys(destination).forEach(key => {
                     current[key] = destination[key];
@@ -132,7 +133,7 @@ function createObjectSpring(start, {
 
                 onUpdate(getValue());
                 onComplete(getValue());
-            } else if (!completed) {
+            } else if (!spring.completed) {
                 onUpdate(getValue());
             }
         }
@@ -153,7 +154,7 @@ function createObjectSpring(start, {
             return obj;
         }, {});
 
-        completed = [];
+        spring.completed = false;
     }
 
     function getValue() {
@@ -161,6 +162,7 @@ function createObjectSpring(start, {
     }
 
     const spring = {
+        completed: false,
         stiffness,
         damping,
         precision,
@@ -187,7 +189,7 @@ function createArraySpring(start, {
     let previous = [];
     let current = [];
     let destination = null;
-    let completed = [];
+    let completedIndexes = [];
 
     function target(dest) {
         if (!Array.isArray(dest)) {
@@ -201,7 +203,8 @@ function createArraySpring(start, {
         }
 
         destination = dest;
-        completed = [];
+        completedIndexes = [];
+        spring.completed = false;
     }
 
     function update() {
@@ -216,10 +219,11 @@ function createArraySpring(start, {
                 start[index] = current[index];
 
 
-                if (isAtTarget(current[index], destination[index], spring.precision) && !completed.includes(index)) {
-                    completed.push(index);
+                if (isAtTarget(current[index], destination[index], spring.precision) && !completedIndexes.includes(index)) {
+                    completedIndexes.push(index);
 
-                    if (completed.length === start.length) {
+                    if (completedIndexes.length === start.length) {
+                        spring.completed = true;
                         onUpdate(destination);
                         onComplete();
                     }
@@ -237,10 +241,12 @@ function createArraySpring(start, {
     function setValue(value) {
         current = value.map(element => element);
         previous = value.map(element => element);
-        completed = [];
+        completedIndexes = [];
+        spring.completed = false;
     }
 
     const spring = {
+        completed: false,
         stiffness,
         damping,
         precision,
