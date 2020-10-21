@@ -56,7 +56,8 @@ function createValueSpring(start, {
     function setValue(value) {
         previous = value;
         current = value;
-
+        
+        destination = null;
         spring.completed = false;
     }
 
@@ -154,6 +155,8 @@ function createObjectSpring(start, {
             return obj;
         }, {});
 
+        destination = {};
+        completedKeys = [];
         spring.completed = false;
     }
 
@@ -242,6 +245,7 @@ function createArraySpring(start, {
         current = value.map(element => element);
         previous = value.map(element => element);
         completedIndexes = [];
+        destination = null;
         spring.completed = false;
     }
 
