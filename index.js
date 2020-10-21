@@ -124,7 +124,7 @@ function createObjectSpring(start, {
 
             let isComplete = Object.keys(destination).every(key => completedKeys.includes(key));
 
-            if (isComplete && !completed) {
+            if (isComplete && !spring.completed) {
                 spring.completed = true;
 
                 Object.keys(destination).forEach(key => {
@@ -227,7 +227,7 @@ function createArraySpring(start, {
                         onUpdate(destination);
                         onComplete();
                     }
-                } else if (!completed.length === start.length) {
+                } else if (!completedIndexes.length === start.length) {
                     onUpdate(getValue());
                 }
             });
